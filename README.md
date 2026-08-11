@@ -1,190 +1,81 @@
-# Terraform Azure Monitor & Log Analytics for Azure Virtual Desktop (Module 26)
+# Terraform Azure Key Vault (Module 27)
 
-Terraform module for deploying centralized monitoring for Azure Virtual Desktop (AVD) using Azure Monitor, Log Analytics Workspace, and reusable Diagnostic Settings.
+Terraform module for deploying an Azure Key Vault with Azure RBAC authorization and secure secret management.
 
-This module builds on the previous AVD infrastructure modules and configures diagnostic data collection for the AVD control plane and Azure Storage.
-
----
-
-# Objective
-
-Deploy enterprise monitoring for Azure Virtual Desktop by:
-
-- Creating a centralized Log Analytics Workspace
-- Configuring Azure Monitor Diagnostic Settings
-- Collecting platform logs from AVD resources
-- Collecting storage metrics from the FSLogix Storage Account
-- Reusing a generic Terraform module for Diagnostic Settings
+This module introduces Azure Key Vault as the centralized location for storing secrets that will be consumed by future modules, including Managed Identities and GitHub Actions.
 
 ---
 
-# Architecture
+## Objective
 
-```
-                   Azure Virtual Desktop
-                           │
-        ┌──────────────────┼──────────────────┐
-        │                  │                  │
-        ▼                  ▼                  ▼
-   Host Pool      Application Group      Workspace
-        │                  │                  │
-        └──────────────┬───┴──────────────────┘
-                       │
-                Diagnostic Settings
-                       │
-                       ▼
-          Log Analytics Workspace
-                law-avd-prod
-                       ▲
-                       │
-             Azure Storage Account
-             (FSLogix Metrics)
-```
+Deploy an enterprise-ready Azure Key Vault by:
+
+- Creating an Azure Key Vault
+- Enabling Azure RBAC authorization
+- Enabling Soft Delete and Purge Protection
+- Assigning Azure RBAC permissions
+- Creating and managing secrets with Terraform
+- Demonstrating secret versioning
 
 ---
 
-# Resources Created
+## Resources Created
 
-- Azure Log Analytics Workspace
-- Host Pool Diagnostic Settings
-- Application Group Diagnostic Settings
-- Workspace Diagnostic Settings
-- Storage Account Diagnostic Settings
+- Azure Key Vault
+- Azure RBAC Role Assignment (Key Vault Secrets Officer)
+- Sample Secret
 
 ---
 
-# Module Structure
+## Features
 
-```
-terraform-avd-monitoring-26/
-
-│
-├── backend.tf
-├── main.tf
-├── outputs.tf
-├── providers.tf
-├── remote-state.tf
-├── variables.tf
-├── terraform.tfvars
-│
-└── modules/
-    └── diagnostic-setting/
-        ├── main.tf
-        ├── variables.tf
-        └── outputs.tf
-```
+- Azure RBAC authorization
+- Soft Delete enabled
+- Purge Protection enabled
+- Public network access (to be secured with Private Endpoints in Module 30)
+- Secret versioning
+- Terraform data source for reading secrets
 
 ---
 
-# Diagnostic Categories
+## Terraform Concepts Covered
 
-## Host Pool
-
-Logs
-
-- Checkpoint
-- Error
-- Management
-- Connection
-- HostRegistration
-- AgentHealthStatus
-- NetworkData
-- ConnectionGraphicsData
-- SessionHostManagement
-- AutoscaleEvaluationPooled
-- MultiLinkAdd
-
----
-
-## Application Group
-
-Logs
-
-- Checkpoint
-- Error
-- Management
-
----
-
-## Workspace
-
-Logs
-
-- Checkpoint
-- Error
-- Management
-- Feed
-
----
-
-## Storage Account
-
-Metrics
-
-- Capacity
-- Transaction
-
----
-
-# Terraform Concepts Covered
-
-- Azure Monitor
-- Log Analytics Workspace
-- Diagnostic Settings
-- Dynamic Blocks
-- Terraform Modules
+- Azure Key Vault
+- Azure RBAC
 - Terraform Remote State
-- Terraform State Refactoring
-- moved Blocks
-- Azure Monitor Metrics
-- Azure Monitor Logs
+- Terraform Data Sources
+- Sensitive Variables
+- Secret Management
+- Secret Versioning
 
 ---
 
-# Outputs
-
-| Output | Description |
-|----------|------------|
-| log_analytics_workspace_id | Log Analytics Workspace Resource ID |
-| log_analytics_workspace_name | Log Analytics Workspace Name |
-
----
-
-# Validation
+## Validation
 
 After deployment verify:
 
-- Log Analytics Workspace exists
-- Host Pool Diagnostic Settings
-- Application Group Diagnostic Settings
-- Workspace Diagnostic Settings
-- Storage Account Diagnostic Settings
-- Azure Monitor begins collecting diagnostic data
+- Key Vault is created
+- Azure RBAC is enabled
+- Purge Protection is enabled
+- Soft Delete is enabled
+- Sample secret exists
+- Secret versioning works after updating the secret value
 
 ---
 
-# Dependencies
+## Outputs
 
-Requires successful completion of:
-
-- Module 19 - Azure Virtual Desktop Host Pool
-- Module 23 - Azure Files / FSLogix Storage
-
----
-
-# Estimated Cost
-
-This module creates:
-
-- Azure Log Analytics Workspace (PerGB2018)
-
-Costs depend on:
-
-- Data ingestion
-- Retention period
-- Diagnostic log volume
-
-For lab environments, costs are typically very low.
+| Output | Description |
+|---------|-------------|
+| key_vault_name | Azure Key Vault name |
+| key_vault_id | Azure Key Vault Resource ID |
+| key_vault_uri | Azure Key Vault URI |
 
 ---
 
+## Dependencies
+
+- Module 19 – Azure Virtual Desktop
+- Module 22 – Azure RBAC
+
+---
